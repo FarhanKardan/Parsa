@@ -8,7 +8,7 @@ from config import EMPLOYEES
 logger = logging.getLogger(__name__)
 
 # MongoDB setup
-client = MongoClient("mongodb://localhost:27017/")  # Use your MongoDB connection string
+client = MongoClient("mongodb://172.17.0.2:27017/")  # Use your MongoDB connection string
 db = client["employee_management"]
 boxes_db = client['box_database']
 boxes_collection = boxes_db['boxes']

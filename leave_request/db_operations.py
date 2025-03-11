@@ -9,9 +9,9 @@ from collections import defaultdict
 # Configure logger
 logger = logging.getLogger(__name__)
 
-# MongoDB setup
-client = MongoClient("mongodb://localhost:27017/")  # Use your MongoDB connection string
-db = client["ParsaKala"]
+client = MongoClient("mongodb://172.17.0.2:27017/")
+db = client["employee_management"]
+
 
 # ----------------- Employee Leave Management Functions -----------------
 
