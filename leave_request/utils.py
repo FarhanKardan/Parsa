@@ -1,5 +1,4 @@
 import logging
-import config  # Import config file for the configuration
 import datetime
 # Configure logger
 logger = logging.getLogger(__name__)
@@ -28,22 +27,4 @@ def validate_date(date_str):
         logger.error(f"Invalid date format: {date_str}")
         return False
 
-# Function to check if the user is a manager
-def is_manager(user_id):
-    if user_id in config.AUTHORIZED_MANAGER_IDS:
-        return True
-    logger.warning(f"Unauthorized manager access attempt by user {user_id}")
-    return False
 
-# Function to check if the user is an employee
-def is_employee(user_id):
-    if user_id in EMPLOYEES:
-        return True
-    logger.warning(f"Unauthorized employee access attempt by user {user_id}")
-    return False
-
-# Example Usage
-user_id = 61002957
-if is_employee(user_id):
-    details = get_employee_details(user_id)
-    print(f"Employee Name: {details['name']} {details['family']}, Role: {details['role']}")

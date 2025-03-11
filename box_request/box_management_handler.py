@@ -26,31 +26,30 @@ async def check_authorization(update: Update):
         return False
     return True
 
-# Start the add_box conversation
+# Updated start_add_box with state transition check
 async def start_add_box(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not await check_authorization(update):
         return ConversationHandler.END
 
     await update.message.reply_text("لطفا شناسه جعبه را وارد کنید.")
-    return BOX_ID
+    return BOX_ID  # Ensure BOX_ID state is used here.
 
-# Handle Box ID input
+# Add Box ID handler
 async def handle_box_id(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data['box_id'] = update.message.text
     await update.message.reply_text(
         "شناسه جعبه دریافت شد! حالا لطفاً دسته‌بندی فروشگاه (انبار با گارانتی، انبار داخل شرکت، یا انبار بیرون) را وارد کنید."
     )
-    return SHOP_CATEGORY
+    return SHOP_CATEGORY  # Properly transitioning to the next state (SHOP_CATEGORY)
 
-# Handle Shop Category input
+# Add Box Category handler
 async def handle_shop_category(update: Update, context: ContextTypes.DEFAULT_TYPE):
     shop_category = update.message.text
-
     if shop_category not in ["انبار با گارانتی", "انبار داخل شرکت", "انبار بیرون"]:
         await update.message.reply_text(
             "دسته‌بندی نامعتبر است! لطفاً 'انبار با گارانتی'، 'انبار داخل شرکت' یا 'انبار بیرون' را وارد کنید."
         )
-        return SHOP_CATEGORY
+        return SHOP_CATEGORY  # Stay in the SHOP_CATEGORY state if input is invalid.
 
     box_id = context.user_data['box_id']
     if insert_box(box_id, shop_category):
@@ -63,7 +62,7 @@ async def handle_shop_category(update: Update, context: ContextTypes.DEFAULT_TYP
             "اضافه کردن جعبه با شکست مواجه شد. لطفاً دوباره تلاش کنید.",
             reply_markup=ReplyKeyboardRemove(),
         )
-    return ConversationHandler.END
+    return ConversationHandler.END  # End the conversation once box is added
 
 # Start the update_box_category conversation
 async def start_update_box_category(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -165,8 +164,10 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "/get_box_details - دریافت جزئیات جعبه با شناسه آن\n"
         "/update_box_category - به‌روزرسانی دسته‌بندی فروشگاه جعبه موجود\n"
         "/remove_box - حذف جعبه از پایگاه داده با شناسه آن\n"
+        "/cancel - لغو عملیات جاری در هر مرحله از گفتگو\n"
     )
     await update.message.reply_text(help_text)
+
 
 # Handlers
 add_box_handler = ConversationHandler(

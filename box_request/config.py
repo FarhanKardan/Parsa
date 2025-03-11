@@ -3,7 +3,7 @@ import os
 
 # Environment variables
 BOT_TOKEN = "7805936590:AAGAea8dSNxdR2YOUTw8FmthCIuRVLYK3Y8"
-AUTHORIZED_MANAGER_IDS = [6463294729]
+AUTHORIZED_MANAGER_IDS = [6463294729, 30209376]
 
 # Employee Details with IDs, Names, and Family
 EMPLOYEES = {
@@ -17,9 +17,7 @@ EMPLOYEES = {
 OPERATIONS_EMPLOYEES = [emp_id for emp_id, details in EMPLOYEES.items() if details["role"] == "Operations"]
 SALES_EMPLOYEES = [emp_id for emp_id, details in EMPLOYEES.items() if details["role"] == "Sales"]
 
-
-
-
-# 61002957
+# Authorized Users
+AUTHORIZED_USER_IDS = list(EMPLOYEES.keys()) + AUTHORIZED_MANAGER_IDS
 
 
