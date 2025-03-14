@@ -9,9 +9,10 @@ from collections import defaultdict
 # Configure logger
 logger = logging.getLogger(__name__)
 
-client = MongoClient("mongodb://172.17.0.2:27017/")
-db = client["employee_management"]
-
+client =MongoClient("mongodb://localhost:27017/")
+db = client["ParsaKala"]
+boxes_db = client['ParsaKala']
+boxes_collection = boxes_db['boxes']
 
 # ----------------- Employee Leave Management Functions -----------------
 
@@ -113,55 +114,51 @@ def convert_to_jalali(date):
     return jdatetime.datetime.fromgregorian(datetime=date).strftime("%Y-%m")
 
 
-# Function to fetch and summarize approved leave requests by Jalali month
-def get_approved_leave_requests_by_jalali_month():
+# ----------------- Box Manager Functions -----------------
+
+# Helper function to insert a box into the database with formatted timestamp
+def insert_box(box_id: str, shop_category: str) -> bool:
     try:
-        # Calculate the date 60 days ago
-        sixty_days_ago = datetime.now() - timedelta(days=60)
-
-        # Aggregation pipeline to fetch approved leave requests within the last 60 days
-        pipeline = [
-            {
-                "$match": {
-                    "status": "approved",  # Only consider approved leave requests
-                    "date": {"$gte": sixty_days_ago}  # Filter for requests within the last 60 days
-                }
-            },
-            {
-                "$lookup": {
-                    "from": "employees",  # Assuming there is an 'employees' collection
-                    "localField": "employee_id",
-                    "foreignField": "employee_id",
-                    "as": "employee_details"
-                }
-            },
-            {
-                "$unwind": "$employee_details"  # Unwind the 'employee_details' array to get individual fields
-            }
-        ]
-
-        # Execute the query to fetch the data
-        leave_requests = list(db.requests.aggregate(pipeline))
-
-        # Group the leave requests based on Jalali months and sum them
-        leave_by_jalali_month = defaultdict(lambda: defaultdict(int))
-
-        # Loop through the leave requests and process them
-        for request in leave_requests:
-            # Convert the leave request date to Jalali month
-            jalali_month = convert_to_jalali(request['date'])
-            
-            # Group by Jalali month and employee_id
-            employee_name = request['employee_details']['name']
-            employee_family = request['employee_details']['family']
-            employee_id = request['employee_id']
-            
-            leave_by_jalali_month[jalali_month][employee_id] += 1  # Count the leave requests
-
-        # Return the summarized leave data
-        return leave_by_jalali_month
-
+        box = {
+            "box_id": box_id,
+            "shop_category": shop_category,
+            "timestamp": datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # Format the timestamp
+        }
+        boxes_collection.insert_one(box)
+        return True
     except Exception as e:
-        print(f"Error fetching or processing leave requests: {e}")
-        return {}
-    
+        logger.error(f"Error inserting box: {e}")
+        return False
+
+# Helper function to update a box category
+def update_box_category(box_id: str, new_shop_category: str) -> bool:
+    try:
+        result = boxes_collection.update_one(
+            {"box_id": box_id},
+            {"$set": {"shop_category": new_shop_category, "timestamp": datetime.now().strftime('%Y-%m-%d %H:%M:%S')}}
+        )
+        return result.modified_count > 0  # Return True if the update was successful
+    except Exception as e:
+        logger.error(f"Error updating box category: {e}")
+        return False
+
+# Helper function to get box details by box_id
+def get_box_details(box_id: str):
+    try:
+        box = boxes_collection.find_one({"box_id": box_id})
+        if box:
+            return f"Box ID: {box['box_id']}\nShop Category: {box['shop_category']}\nTimestamp: {box['timestamp']}"
+        else:
+            return "Box not found."
+    except Exception as e:
+        logger.error(f"Error retrieving box details: {e}")
+        return "Error retrieving box details."
+
+# Helper function to remove a box by box_id
+def remove_box(box_id: str) -> bool:
+    try:
+        result = boxes_collection.delete_one({"box_id": box_id})
+        return result.deleted_count > 0  # Return True if a box was successfully removed
+    except Exception as e:
+        logger.error(f"Error removing box: {e}")
+        return False
