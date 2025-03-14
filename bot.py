@@ -27,7 +27,7 @@ INTEREST_RATES = {
     ("80%", "چک"): 0.025,
     ("80%", "سفته"): 0.035
 }
-ADMIN_USER_IDS = [6463294729, 64632947294]  # Replace with actual admin user IDs
+ADMIN_USER_IDS = [6463294729, 61002957, 618685441, 210610395]  # Replace with actual admin user IDs
 
 # Define states for the conversation
 SELECT_MOBILE, SELECT_PAYMENT, SELECT_GUARANTEE, SELECT_MONTHS = range(4)
