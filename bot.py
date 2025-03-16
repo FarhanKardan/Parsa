@@ -8,10 +8,20 @@ import config
 
 # Define constants
 MOBILE_MODELS = {
-    "iPhone 16": 80000000,
-    "Samsung Galaxy S24": 1000,
-    "Google Pixel 9": 900
+    "iPhone 16 Pro Max 1TB": 230000000,
+    "iPhone 16 Pro Max 512GB": 183000000,
+    "iPhone 16 Pro Max 256GB": 165000000,
+    "iPhone 16 Pro 512GB": 0,  # Verify this price; it seems incorrect
+    "iPhone 16 Pro 256GB": 160000000,
+    "iPhone 16 256GB": 111000000,
+    "iPhone 16 128GB": 880000000,  # Verify this price; it seems unusually high
+    "iPhone 13 256GB": 0,  # Verify this price
+    "iPhone 13 128GB": 60000000,
+    "S24 Ultra 512GB": 0,  # Verify this price
+    "S24 Ultra 256GB": 100000000,
+    "S24 FE 256GB": 47000000
 }
+
 PAYMENT_OPTIONS = ["40%", "50%", "60%", "70%", "80%"]
 GUARANTEE_OPTIONS = ["چک", "سفته"]
 INSTALLMENT_MONTHS = [str(i) for i in range(2, 7)]
