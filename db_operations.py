@@ -9,7 +9,7 @@ from collections import defaultdict
 # Configure logger
 logger = logging.getLogger(__name__)
 
-client = MongoClient("mongodb://172.17.0.2:27017/")
+client =MongoClient("mongodb://localhost:27017/")
 db = client["ParsaKala"]
 boxes_db = client['ParsaKala']
 boxes_collection = boxes_db['boxes']
@@ -117,14 +117,19 @@ def convert_to_jalali(date):
 # ----------------- Box Manager Functions -----------------
 
 # Helper function to insert a box into the database with formatted timestamp
-def insert_box(box_id: str, shop_category: str) -> bool:
+def insert_box(box_id: str, shop_category: str, icloud_id: str, imei_1: str, imei_2: str, name_family: str) -> bool:
     try:
         box = {
             "box_id": box_id,
             "shop_category": shop_category,
+            "icloud_id": icloud_id,
+            "imei_1": imei_1,
+            "imei_2": imei_2,
+            "name_family": name_family,
             "timestamp": datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # Format the timestamp
         }
         boxes_collection.insert_one(box)
+        logger.info(f"Box {box_id} inserted successfully.")
         return True
     except Exception as e:
         logger.error(f"Error inserting box: {e}")
@@ -145,14 +150,24 @@ def update_box_category(box_id: str, new_shop_category: str) -> bool:
 # Helper function to get box details by box_id
 def get_box_details(box_id: str):
     try:
-        box = boxes_collection.find_one({"box_id": box_id})
+        box = boxes_collection.find_one({"imei_1": box_id})
         if box:
-            return f"Box ID: {box['box_id']}\nShop Category: {box['shop_category']}\nTimestamp: {box['timestamp']}"
+            details = (
+                "جزئیات جعبه:\n\n"
+                f"شناسه جعبه: {box['box_id']}\n"
+                f"دسته‌بندی فروشگاه: {box['shop_category']}\n"
+                f"آیدی ایکلود: {box.get('icloud_id', 'N/A')}\n"
+                f"چهار رقم آخر سریال دستگاه (IMEI 1): {box.get('imei_1', 'N/A')}\n"
+                f"چهار رقم آخر سریال دستگاه (IMEI 2): {box.get('imei_2', 'N/A')}\n"
+                f"نام و نام خانوادگی: {box.get('name_family', 'N/A')}\n"
+                f"زمان ثبت: {box['timestamp']}"
+            )
+            return details
         else:
-            return "Box not found."
+            return "جعبه با این IMEI 1 یافت نشد."
     except Exception as e:
         logger.error(f"Error retrieving box details: {e}")
-        return "Error retrieving box details."
+        return "خطا در دریافت جزئیات جعبه. لطفاً دوباره تلاش کنید."
 
 # Helper function to remove a box by box_id
 def remove_box(box_id: str) -> bool:

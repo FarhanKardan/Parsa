@@ -9,14 +9,15 @@ from telegram.ext import (
 from db_operations import insert_box, update_box_category, get_box_details, remove_box
 from config import AUTHORIZED_USER_IDS  # A list of authorized user IDs
 import logging
+
 # Setup logger
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 
 # Define conversation states
 class ConversationStates:
-    BOX_ID, SHOP_CATEGORY = range(2)
-    UPDATE_BOX_ID, NEW_SHOP_CATEGORY = range(2, 4)
-    GET_BOX_ID = 5
+    BOX_ID, SHOP_CATEGORY, ICLOUD_ID, IMEI_1, IMEI_2, NAME_FAMILY = range(6)
+    UPDATE_BOX_ID, NEW_SHOP_CATEGORY = range(6, 8)
+    GET_BOX_ID = 9
 
 # Define box categories
 BOX_CATEGORIES = ["انبار با گارانتی", "انبار داخل شرکت", "انبار بیرون"]
@@ -57,11 +58,43 @@ class BoxManagerBot:
     async def handle_box_id(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         context.user_data['box_id'] = update.message.text
 
+        # Ask for iCloud ID
+        await update.message.reply_text("لطفاً iCloud ID را وارد کنید.")
+        return self.states.ICLOUD_ID
+
+    # Handle iCloud ID input
+    async def handle_icloud_id(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        context.user_data['icloud_id'] = update.message.text
+
+        # Ask for IMEI 1
+        await update.message.reply_text("لطفاً چهار رقم آخر سریال دستگاه (IMEI 1) را وارد کنید.")
+        return self.states.IMEI_1
+
+    # Handle IMEI 1 input
+    async def handle_imei_1(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        context.user_data['imei_1'] = update.message.text
+
+        # Ask for IMEI 2
+        await update.message.reply_text("لطفاً چهار رقم آخر سریال دستگاه (IMEI 2) را وارد کنید.")
+        return self.states.IMEI_2
+
+    # Handle IMEI 2 input
+    async def handle_imei_2(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        context.user_data['imei_2'] = update.message.text
+
+        # Ask for name and family
+        await update.message.reply_text("لطفاً نام و نام خانوادگی خود را وارد کنید.")
+        return self.states.NAME_FAMILY
+
+    # Handle name and family input
+    async def handle_name_family(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        context.user_data['name_family'] = update.message.text
+
         # Show category selection keyboard
         keyboard = [BOX_CATEGORIES]
         reply_markup = ReplyKeyboardMarkup(keyboard, one_time_keyboard=True, resize_keyboard=True)
         await update.message.reply_text(
-            "شناسه جعبه دریافت شد! لطفاً دسته‌بندی فروشگاه را انتخاب کنید:",
+            "اطلاعات دریافت شد! لطفاً دسته‌بندی فروشگاه را انتخاب کنید:",
             reply_markup=reply_markup,
         )
         return self.states.SHOP_CATEGORY
@@ -77,10 +110,16 @@ class BoxManagerBot:
             )
             return self.states.SHOP_CATEGORY
 
+        # Save all data to the database
         box_id = context.user_data['box_id']
-        if insert_box(box_id, shop_category):
+        icloud_id = context.user_data['icloud_id']
+        imei_1 = context.user_data['imei_1']
+        imei_2 = context.user_data['imei_2']
+        name_family = context.user_data['name_family']
+
+        if insert_box(box_id, shop_category, icloud_id, imei_1, imei_2, name_family):
             await update.message.reply_text(
-                f"جعبه با شناسه {box_id} و دسته‌بندی فروشگاه {shop_category} با موفقیت اضافه شد",
+                f"جعبه با شناسه {box_id} و دسته‌بندی فروشگاه {shop_category} با موفقیت اضافه شد.",
                 reply_markup=ReplyKeyboardRemove(),
             )
         else:
@@ -94,7 +133,6 @@ class BoxManagerBot:
     async def start_update_box_category(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         if not await self.check_authorization(update):
             return ConversationHandler.END
-
         await update.message.reply_text(
             "لطفاً شناسه جعبه‌ای که می‌خواهید دسته‌بندی آن را به‌روزرسانی کنید وارد کنید."
         )
@@ -142,7 +180,7 @@ class BoxManagerBot:
         if not await self.check_authorization(update):
             return ConversationHandler.END
 
-        await update.message.reply_text("لطفاً شناسه جعبه را وارد کنید تا جزئیات آن را دریافت کنید.")
+        await update.message.reply_text("لطفاً چهار رقم آخر سریال دستگاه (IMEI 1) را وارد کنید.")
         return self.states.GET_BOX_ID
 
     # Handle Box ID input for retrieving details
@@ -195,6 +233,10 @@ class BoxManagerBot:
                 entry_points=[CommandHandler("add_box", self.start_add_box)],
                 states={
                     self.states.BOX_ID: [MessageHandler(filters.TEXT & ~filters.COMMAND, self.handle_box_id)],
+                    self.states.ICLOUD_ID: [MessageHandler(filters.TEXT & ~filters.COMMAND, self.handle_icloud_id)],
+                    self.states.IMEI_1: [MessageHandler(filters.TEXT & ~filters.COMMAND, self.handle_imei_1)],
+                    self.states.IMEI_2: [MessageHandler(filters.TEXT & ~filters.COMMAND, self.handle_imei_2)],
+                    self.states.NAME_FAMILY: [MessageHandler(filters.TEXT & ~filters.COMMAND, self.handle_name_family)],
                     self.states.SHOP_CATEGORY: [MessageHandler(filters.TEXT & ~filters.COMMAND, self.handle_shop_category)],
                 },
                 fallbacks=[CommandHandler("cancel", self.cancel)],
