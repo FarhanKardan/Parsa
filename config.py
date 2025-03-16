@@ -1,4 +1,3 @@
-# config.py
 import os
 
 # Environment variables
@@ -30,8 +29,6 @@ SALES_EMPLOYEES = [emp_id for emp_id, details in EMPLOYEES.items() if details["r
 
 
 
-
-# 61002957
 # Authorized Users
 AUTHORIZED_USER_IDS = list(EMPLOYEES.keys()) + AUTHORIZED_MANAGER_IDS
 
