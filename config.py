@@ -2,7 +2,7 @@ import os
 
 # Environment variables
 BOT_TOKEN = "7775555458:AAHSOUrl3Vt9AlAScrkwvXo_jLqC3sANixw"
-
+# 7805936590:AAGAea8dSNxdR2YOUTw8FmthCIuRVLYK3Y8
 AUTHORIZED_MANAGER_IDS = [61002957,115864862]
 
 # Employee Details with IDs, Names, and Family

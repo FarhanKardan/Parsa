@@ -11,10 +11,10 @@ MOBILE_MODELS = {
     "iPhone 16 Pro Max 1TB": 230000000,
     "iPhone 16 Pro Max 512GB": 183000000,
     "iPhone 16 Pro Max 256GB": 165000000,
-    "iPhone 16 Pro 512GB": 0,  # Verify this price; it seems incorrect
+    "iPhone 16 Pro 512GB": 0,  
     "iPhone 16 Pro 256GB": 160000000,
     "iPhone 16 256GB": 111000000,
-    "iPhone 16 128GB": 880000000,  # Verify this price; it seems unusually high
+    "iPhone 16 128GB": 880000000,  
     "iPhone 13 256GB": 0,  # Verify this price
     "iPhone 13 128GB": 60000000,
     "S24 Ultra 512GB": 0,  # Verify this price

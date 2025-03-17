@@ -69,6 +69,10 @@ class BotHandler:
         context.user_data["upfront_amount"] = context.user_data["mobile_price"] * context.user_data["upfront_percentage"]
         context.user_data["remaining_balance"] = context.user_data["mobile_price"] - context.user_data["upfront_amount"]
 
+        # Apply extra price adjustments based on conditions
+        mobile_price = context.user_data["mobile_price"]
+        payment_percentage = int(payment_percentage.strip('%'))
+
         keyboard = [[option] for option in self.guarantee_options]
         reply_markup = ReplyKeyboardMarkup(keyboard, one_time_keyboard=True)
         await update.message.reply_text("📜 لطفاً نوع ضمانت (چک یا سفته) را انتخاب کنید:", reply_markup=reply_markup)
@@ -85,6 +89,99 @@ class BotHandler:
             return ConversationHandler.END
 
         context.user_data["guarantee_type"] = guarantee_type
+
+        # Apply extra price adjustments based on guarantee and payment percentage
+        mobile_price = context.user_data["mobile_price"]
+        payment_percentage = context.user_data["upfront_percentage"] * 100  # Convert back to percentage for logic
+
+        if 50000000 <= mobile_price <= 70000000:
+            if payment_percentage == 40 and guarantee_type == "چک":
+                context.user_data["mobile_price"] += 8000000
+            elif payment_percentage == 40 and guarantee_type == "سفته":
+                context.user_data["mobile_price"] += 9000000
+            elif payment_percentage == 50 and guarantee_type == "چک":
+                context.user_data["mobile_price"] += 7000000
+            elif payment_percentage == 50 and guarantee_type == "سفته":
+                context.user_data["mobile_price"] += 8000000
+            elif payment_percentage == 60 and guarantee_type == "چک":
+                context.user_data["mobile_price"] += 6000000
+            elif payment_percentage == 60 and guarantee_type == "سفته":
+                context.user_data["mobile_price"] += 7000000
+            elif payment_percentage == 70 and guarantee_type == "چک":
+                context.user_data["mobile_price"] += 5000000
+            elif payment_percentage == 70 and guarantee_type == "سفته":
+                context.user_data["mobile_price"] += 6000000
+            elif payment_percentage == 80 and guarantee_type == "چک":
+                context.user_data["mobile_price"] += 4000000
+
+        elif 70000000 < mobile_price <= 100000000:
+            if payment_percentage == 40 and guarantee_type == "چک":
+                context.user_data["mobile_price"] += 9000000
+            elif payment_percentage == 40 and guarantee_type == "سفته":
+                context.user_data["mobile_price"] += 10000000
+            elif payment_percentage == 50 and guarantee_type == "چک":
+                context.user_data["mobile_price"] += 8000000
+            elif payment_percentage == 50 and guarantee_type == "سفته":
+                context.user_data["mobile_price"] += 9000000
+            elif payment_percentage == 60 and guarantee_type == "چک":
+                context.user_data["mobile_price"] += 6000000
+            elif payment_percentage == 60 and guarantee_type == "سفته":
+                context.user_data["mobile_price"] += 7000000
+            elif payment_percentage == 70 and guarantee_type == "چک":
+                context.user_data["mobile_price"] += 5000000
+            elif payment_percentage == 70 and guarantee_type == "سفته":
+                context.user_data["mobile_price"] += 6000000
+            elif payment_percentage == 80 and guarantee_type == "چک":
+                context.user_data["mobile_price"] += 4000000
+            elif payment_percentage == 80 and guarantee_type == "سفته":
+                context.user_data["mobile_price"] += 5000000
+
+        elif 100000001 <= mobile_price <= 150000001:
+            if payment_percentage == 40 and guarantee_type == "چک":
+                context.user_data["mobile_price"] += 12000000
+            elif payment_percentage == 40 and guarantee_type == "سفته":
+                context.user_data["mobile_price"] += 13000000
+            elif payment_percentage == 50 and guarantee_type == "چک":
+                context.user_data["mobile_price"] += 11000000
+            elif payment_percentage == 50 and guarantee_type == "سفته":
+                context.user_data["mobile_price"] += 12000000
+            elif payment_percentage == 60 and guarantee_type == "چک":
+                context.user_data["mobile_price"] += 10000000
+            elif payment_percentage == 60 and guarantee_type == "سفته":
+                context.user_data["mobile_price"] += 11000000
+            elif payment_percentage == 70 and guarantee_type == "چک":
+                context.user_data["mobile_price"] += 9000000
+            elif payment_percentage == 70 and guarantee_type == "سفته":
+                context.user_data["mobile_price"] += 10000000
+            elif payment_percentage == 80 and guarantee_type == "چک":
+                context.user_data["mobile_price"] += 8000000
+            elif payment_percentage == 80 and guarantee_type == "سفته":
+                context.user_data["mobile_price"] += 9000000
+
+        elif mobile_price > 150000000:
+            # New condition for prices greater than 150,000,000
+            if payment_percentage == 40 and guarantee_type == "چک":
+                context.user_data["mobile_price"] += 16000000
+            elif payment_percentage == 40 and guarantee_type == "سفته":
+                context.user_data["mobile_price"] += 17000000
+            elif payment_percentage == 50 and guarantee_type == "چک":
+                context.user_data["mobile_price"] += 16000000
+            elif payment_percentage == 50 and guarantee_type == "سفته":
+                context.user_data["mobile_price"] += 16000000
+            elif payment_percentage == 60 and guarantee_type == "چک":
+                context.user_data["mobile_price"] += 14000000
+            elif payment_percentage == 60 and guarantee_type == "سفته":
+                context.user_data["mobile_price"] += 15000000
+            elif payment_percentage == 70 and guarantee_type == "چک":
+                context.user_data["mobile_price"] += 13000000
+            elif payment_percentage == 70 and guarantee_type == "سفته":
+                context.user_data["mobile_price"] += 14000000
+            elif payment_percentage == 80 and guarantee_type == "چک":
+                context.user_data["mobile_price"] += 12000000
+            elif payment_percentage == 80 and guarantee_type == "سفته":
+                context.user_data["mobile_price"] += 13000000
+
+
         keyboard = [[months] for months in self.installment_months]
         reply_markup = ReplyKeyboardMarkup(keyboard, one_time_keyboard=True)
         await update.message.reply_text("📆 طی چند ماه می‌خواهید مبلغ باقی‌مانده را پرداخت کنید؟ (۲ تا ۶ ماه)", reply_markup=reply_markup)
